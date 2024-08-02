@@ -1,14 +1,36 @@
 pipeline {
-  agent { dockerfile true } // Use Dockerfile as the agent for the pipeline
-
+  agent {
+    docker {
+      image 'node:latest'
+      args '-u root:root'
+    }
+}
   stages {
-    stage('Test') {
+    stage('install playwright') {
       steps {
         sh '''
-          curl --version // Check the version of curl
-          node --version // Check the version of Node.js
-          npm --version  // Check the version of npm
+          npm i -D @playwright/test
+          npx playwright install
         '''
+      }
+    }
+    stage('help') {
+      steps {
+        sh 'npx playwright test --help'
+      }
+    }
+    stage('test') {
+      steps {
+        sh '''
+          npx playwright test --list
+          npx playwright test
+        '''
+      }
+      post {
+        success {
+          archiveArtifacts(artifacts: 'homepage-*.png', followSymlinks: false)
+          sh 'rm -rf *.png'
+        }
       }
     }
   }
