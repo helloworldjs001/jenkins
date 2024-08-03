@@ -55,13 +55,16 @@ pipeline {
   post {
     success {
       script {
-        // Verify the directory path
+        // Verify the directory path and get files
         def reportDir = 'playwright-report'
-        def reportFiles = sh(script: "ls -1 ${reportDir}/**/* || echo 'No files found'", returnStdout: true).trim().split('\n')
+        def reportFiles = sh(script: "find ${reportDir} -type f || echo 'No files found'", returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
           [path: file, name: file]
         }
         
+        // Debug: Print out the list of attachments
+        echo "Attachments: ${attachments}"
+
         mail to: 'lallsimmu80@gmail.com',
              subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
              body: """The build was successful!
@@ -83,13 +86,16 @@ Please find the attached report.""",
     }
     failure {
       script {
-        // Verify the directory path
+        // Verify the directory path and get files
         def reportDir = 'playwright-report'
-        def reportFiles = sh(script: "ls -1 ${reportDir}/**/* || echo 'No files found'", returnStdout: true).trim().split('\n')
+        def reportFiles = sh(script: "find ${reportDir} -type f || echo 'No files found'", returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
           [path: file, name: file]
         }
         
+        // Debug: Print out the list of attachments
+        echo "Attachments: ${attachments}"
+
         mail to: 'lallsimmu80@gmail.com',
              subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
              body: """The build failed.
