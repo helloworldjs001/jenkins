@@ -3,6 +3,13 @@ pipeline {
     docker {
       image 'node:latest'
       args '-u root:root'
+      // Optionally, set environment variables here
+      environment {
+        SMTP_SERVER = 'smtp.example.com'
+        SMTP_PORT = '587'
+        SMTP_USER = 'test.adam011@gmail.com'
+        SMTP_PASSWORD = 'hlng jvok gpzn tjix '
+      }
     }
   }
   stages {
@@ -28,17 +35,28 @@ pipeline {
         '''
       }
     }
+    stage('Test Connectivity') {
+      steps {
+        sh '''
+          # Test SMTP server connectivity
+          echo "Testing SMTP server connectivity..."
+          curl -v smtp.example.com:587 || echo "SMTP server connectivity test failed"
+        '''
+      }
+    }
   }
   post {
     success {
-      mail to: 'test.adam011@gmail.com',
+      mail to: 'recipient@example.com',
            subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-           body: "The build was successful!\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+           body: "The build was successful!\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}",
+           from: 'your-email@example.com'
     }
     failure {
-      mail to: 'test.adam011@gmail.com',
+      mail to: 'recipient@example.com',
            subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-           body: "The build failed.\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}\n\nPlease check the console output for more details."
+           body: "The build failed.\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}\n\nPlease check the console output for more details.",
+           from: 'your-email@example.com'
     }
   }
 }
