@@ -9,7 +9,7 @@ pipeline {
         SMTP_SERVER = 'smtp.example.com'
         SMTP_PORT = '587'
         SMTP_USER = 'test.adam011@gmail.com'
-        SMTP_PASSWORD = 'hlng jvok gpzn tjix '
+        SMTP_PASSWORD = 'hlng jvok gpzn tjix'
       }
   stages {
     stage('install playwright') {
