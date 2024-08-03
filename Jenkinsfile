@@ -55,19 +55,10 @@ pipeline {
   post {
     success {
       script {
-        // Verify the directory path and get files
-        def reportDir = 'playwright-report'
-        def reportFiles = sh(script: "find ${reportDir} -type f || echo 'No files found'", returnStdout: true).trim().split('\n')
-        def attachments = reportFiles.collect { file ->
-          [path: file, name: file]
-        }
-        
-        // Debug: Print out the list of attachments
-        echo "Attachments: ${attachments}"
-
-        mail to: 'lallsimmu80@gmail.com',
-             subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-             body: """The build was successful!
+        emailext (
+          to: 'lallsimmu80@gmail.com',
+          subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
+          body: """The build was successful!
 
 Build details:
 Job: ${env.JOB_NAME}
@@ -75,30 +66,25 @@ Build Number: ${env.BUILD_NUMBER}
 URL: ${env.BUILD_URL}
 
 Please find the attached report.""",
-             from: 'your-email@example.com',
-             smtpHost: "${env.SMTP_HOST}",
-             smtpPort: "${env.SMTP_PORT}",
-             smtpUser: credentials('smtp-username'),
-             smtpPassword: credentials('smtp-password'),
-             smtpStartTLS: true,
-             attachments: attachments
+          mimeType: 'text/html',
+          from: 'your-email@gmail.com',
+          replyTo: 'your-email@gmail.com',
+          attachmentsPattern: '**/playwright-report/**/*',
+          smtpHost: "${env.SMTP_HOST}",
+          smtpPort: "${env.SMTP_PORT}",
+          authUser: credentials('smtp-username'),
+          authPassword: credentials('smtp-password'),
+          useSsl: false,
+          useTls: true
+        )
       }
     }
     failure {
       script {
-        // Verify the directory path and get files
-        def reportDir = 'playwright-report'
-        def reportFiles = sh(script: "find ${reportDir} -type f || echo 'No files found'", returnStdout: true).trim().split('\n')
-        def attachments = reportFiles.collect { file ->
-          [path: file, name: file]
-        }
-        
-        // Debug: Print out the list of attachments
-        echo "Attachments: ${attachments}"
-
-        mail to: 'lallsimmu80@gmail.com',
-             subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-             body: """The build failed.
+        emailext (
+          to: 'lallsimmu80@gmail.com',
+          subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
+          body: """The build failed.
 
 Build details:
 Job: ${env.JOB_NAME}
@@ -106,13 +92,17 @@ Build Number: ${env.BUILD_NUMBER}
 URL: ${env.BUILD_URL}
 
 Please check the attached report and the console output for more details.""",
-             from: 'your-email@example.com',
-             smtpHost: "${env.SMTP_HOST}",
-             smtpPort: "${env.SMTP_PORT}",
-             smtpUser: credentials('smtp-username'),
-             smtpPassword: credentials('smtp-password'),
-             smtpStartTLS: true,
-             attachments: attachments
+          mimeType: 'text/html',
+          from: 'your-email@gmail.com',
+          replyTo: 'your-email@gmail.com',
+          attachmentsPattern: '**/playwright-report/**/*',
+          smtpHost: "${env.SMTP_HOST}",
+          smtpPort: "${env.SMTP_PORT}",
+          authUser: credentials('smtp-username'),
+          authPassword: credentials('smtp-password'),
+          useSsl: false,
+          useTls: true
+        )
       }
     }
   }
