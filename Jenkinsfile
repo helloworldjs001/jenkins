@@ -29,6 +29,12 @@ pipeline {
         sh '''
           npx playwright test --list
           npx playwright test --reporter=html
+          # List contents of the working directory for debugging
+          echo "Listing contents of working directory:"
+          ls -al
+          # List contents of the report directory
+          echo "Listing contents of playwright-report directory:"
+          ls -al playwright-report/
         '''
       }
     }
@@ -49,8 +55,9 @@ pipeline {
   post {
     success {
       script {
-        // Use shell command to list report files
-        def reportFiles = sh(script: 'ls -1 playwright-report/**/*', returnStdout: true).trim().split('\n')
+        // Verify the directory path
+        def reportDir = 'playwright-report'
+        def reportFiles = sh(script: "ls -1 ${reportDir}/**/* || echo 'No files found'", returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
           [path: file, name: file]
         }
@@ -76,8 +83,9 @@ Please find the attached report.""",
     }
     failure {
       script {
-        // Use shell command to list report files
-        def reportFiles = sh(script: 'ls -1 playwright-report/**/*', returnStdout: true).trim().split('\n')
+        // Verify the directory path
+        def reportDir = 'playwright-report'
+        def reportFiles = sh(script: "ls -1 ${reportDir}/**/* || echo 'No files found'", returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
           [path: file, name: file]
         }
