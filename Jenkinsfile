@@ -49,10 +49,12 @@ pipeline {
   post {
     success {
       script {
-        def reportFiles = findFiles(glob: '**/playwright-report/**/*')
+        // Use shell command to list report files
+        def reportFiles = sh(script: 'ls -1 playwright-report/**/*', returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
-          [path: file.path, name: file.name]
+          [path: file, name: file]
         }
+        
         mail to: 'lallsimmu80@gmail.com',
              subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
              body: """The build was successful!
@@ -74,10 +76,12 @@ Please find the attached report.""",
     }
     failure {
       script {
-        def reportFiles = findFiles(glob: '**/playwright-report/**/*')
+        // Use shell command to list report files
+        def reportFiles = sh(script: 'ls -1 playwright-report/**/*', returnStdout: true).trim().split('\n')
         def attachments = reportFiles.collect { file ->
-          [path: file.path, name: file.name]
+          [path: file, name: file]
         }
+        
         mail to: 'lallsimmu80@gmail.com',
              subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
              body: """The build failed.
