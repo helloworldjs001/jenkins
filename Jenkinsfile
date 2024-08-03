@@ -5,14 +5,14 @@ pipeline {
       args '-u root:root'
     }
   }
-   environment {
-        SMTP_SERVER = 'smtp.example.com'
-        SMTP_PORT = '587'
-        SMTP_USER = 'test.adam011@gmail.com'
-        SMTP_PASSWORD = 'hlng jvok gpzn tjix'
-      }
+  environment {
+    SMTP_HOST = 'smtp.gmail.com'
+    SMTP_PORT = '587'
+    SMTP_USER = credentials('smtp-username')
+    SMTP_PASSWORD = credentials('smtp-password')
+  }
   stages {
-    stage('install playwright') {
+    stage('Install Playwright') {
       steps {
         sh '''
           npm i -D @playwright/test
@@ -21,12 +21,12 @@ pipeline {
         '''
       }
     }
-    stage('help') {
+    stage('Help') {
       steps {
         sh 'npx playwright test --help'
       }
     }
-    stage('test') {
+    stage('Test') {
       steps {
         sh '''
           npx playwright test --list
@@ -38,24 +38,33 @@ pipeline {
       steps {
         sh '''
           echo "Testing SMTP server connectivity..."
-          curl -v smtp.example.com:587 || echo "SMTP server connectivity test failed"
+          curl -v ${SMTP_HOST}:${SMTP_PORT} || echo "SMTP server connectivity test failed"
         '''
       }
     }
   }
   post {
     success {
-      mail to: 'recipient@example.com',
+      mail to: 'lallsimmu80@gmail.com',
            subject: "Jenkins Build Success: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
            body: "The build was successful!\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}",
-           from: 'your-email@example.com'
+           from: 'your-email@example.com',
+           smtpHost: "${env.SMTP_HOST}",
+           smtpPort: "${env.SMTP_PORT}",
+           smtpUser: "${env.SMTP_USER}",
+           smtpPassword: "${env.SMTP_PASSWORD}",
+           smtpStartTLS: true
     }
     failure {
-      mail to: 'recipient@example.com',
+      mail to: 'lallsimmu80@gmail.com',
            subject: "Jenkins Build Failure: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
            body: "The build failed.\n\nBuild details:\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}\n\nPlease check the console output for more details.",
-           from: 'your-email@example.com'
+           from: 'your-email@example.com',
+           smtpHost: "${env.SMTP_HOST}",
+           smtpPort: "${env.SMTP_PORT}",
+           smtpUser: "${env.SMTP_USER}",
+           smtpPassword: "${env.SMTP_PASSWORD}",
+           smtpStartTLS: true
     }
   }
 }
-
