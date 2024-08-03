@@ -3,15 +3,14 @@ pipeline {
     docker {
       image 'node:latest'
       args '-u root:root'
-      // Optionally, set environment variables here
-      environment {
+    }
+  }
+   environment {
         SMTP_SERVER = 'smtp.example.com'
         SMTP_PORT = '587'
         SMTP_USER = 'test.adam011@gmail.com'
         SMTP_PASSWORD = 'hlng jvok gpzn tjix '
       }
-    }
-  }
   stages {
     stage('install playwright') {
       steps {
@@ -38,7 +37,6 @@ pipeline {
     stage('Test Connectivity') {
       steps {
         sh '''
-          # Test SMTP server connectivity
           echo "Testing SMTP server connectivity..."
           curl -v smtp.example.com:587 || echo "SMTP server connectivity test failed"
         '''
@@ -60,3 +58,4 @@ pipeline {
     }
   }
 }
+
